@@ -29,4 +29,4 @@ order by event_time_microseconds asc format CSV"
     exit 10
 fi
 
-python3 profile.py --db "$1" --query-id "$2"
+python3 profile_query.py --db "$1" --query-id "$2"
