@@ -24,6 +24,7 @@ class TPCH(object):
         name = "customer"
         t_customer = Table(name, self.database)
 
+        t_customer.repartition = config.tpch_shards_repartition.get(name)[1]
         t_customer.external_path = self.external_path + os.sep + name
 
         t_customer.columns.append(Column("c_custkey", ColumnType(ColumnTypeEnum.BIGINT), self.nullable))
@@ -51,6 +52,7 @@ class TPCH(object):
     def _lineitem(self):
         name = "lineitem"
         t_lineitem = Table(name, self.database)
+        t_lineitem.repartition = config.tpch_shards_repartition.get(name)[1]
         t_lineitem.external_path = self.external_path + os.sep + name
         t_lineitem.columns.append(Column("l_orderkey", ColumnType(ColumnTypeEnum.BIGINT), self.nullable))
         t_lineitem.columns.append(Column("l_partkey", ColumnType(ColumnTypeEnum.BIGINT), self.nullable))
@@ -85,6 +87,7 @@ class TPCH(object):
     def _nation(self):
         name = "nation"
         t_nation = Table(name, self.database)
+        t_nation.repartition = config.tpch_shards_repartition.get(name)[1]
         t_nation.external_path = self.external_path + os.sep + name
         t_nation.columns.append(Column("n_nationkey", ColumnType(ColumnTypeEnum.BIGINT), self.nullable))
         t_nation.columns.append(Column("n_name", ColumnType(ColumnTypeEnum.STRING), self.nullable))
@@ -107,6 +110,7 @@ class TPCH(object):
     def _orders(self):
         name = "orders"
         t_orders = Table(name, self.database)
+        t_orders.repartition = config.tpch_shards_repartition.get(name)[1]
         t_orders.external_path = self.external_path + os.sep + name
         t_orders.columns.append(Column("o_orderkey", ColumnType(ColumnTypeEnum.BIGINT), self.nullable))
         t_orders.columns.append(Column("o_custkey", ColumnType(ColumnTypeEnum.BIGINT), self.nullable))
@@ -133,6 +137,7 @@ class TPCH(object):
     def _part(self):
         name = "part"
         t_part = Table(name, self.database)
+        t_part.repartition = config.tpch_shards_repartition.get(name)[1]
         t_part.external_path = self.external_path + os.sep + name
         t_part.columns.append(Column("p_partkey", ColumnType(ColumnTypeEnum.BIGINT), self.nullable))
         t_part.columns.append(Column("p_name", ColumnType(ColumnTypeEnum.STRING), self.nullable))
@@ -160,6 +165,7 @@ class TPCH(object):
     def _partsupp(self):
         name = "partsupp"
         t_partsupp = Table(name, self.database)
+        t_partsupp.repartition = config.tpch_shards_repartition.get(name)[1]
         t_partsupp.external_path = self.external_path + os.sep + name
         t_partsupp.columns.append(Column("ps_partkey", ColumnType(ColumnTypeEnum.BIGINT), self.nullable))
         t_partsupp.columns.append(Column("ps_suppkey", ColumnType(ColumnTypeEnum.BIGINT), self.nullable))
@@ -183,6 +189,7 @@ class TPCH(object):
     def _region(self):
         name = "region"
         t_region = Table(name, self.database)
+        t_region.repartition = config.tpch_shards_repartition.get(name)[1]
         t_region.external_path = self.external_path + os.sep + name
         t_region.columns.append(Column("r_regionkey", ColumnType(ColumnTypeEnum.BIGINT), self.nullable))
         t_region.columns.append(Column("r_name", ColumnType(ColumnTypeEnum.STRING), self.nullable))
@@ -204,6 +211,7 @@ class TPCH(object):
     def _supplier(self):
         name = "supplier"
         t_supplier = Table(name, self.database)
+        t_supplier.repartition = config.tpch_shards_repartition.get(name)[1]
         t_supplier.external_path = self.external_path + os.sep + name
         t_supplier.columns.append(Column("s_suppkey", ColumnType(ColumnTypeEnum.BIGINT), self.nullable))
         t_supplier.columns.append(Column("s_name", ColumnType(ColumnTypeEnum.STRING), self.nullable))

@@ -67,7 +67,9 @@ def load_bucket_data(table: Table, tpch, mergetree_path: str):
 
     tpch_table: Table = tpch.tables[table.name]
     spark_client.create_table(tpch_table)
-    spark_client.execute("insert into {} select * from {}".format(tpch_table.full_name(), table.full_name()))
+    spark_client.execute(
+        "insert into {} select {} * from {}".format(tpch_table.full_name(), tpch_table.select_repartition(),
+                                                    table.full_name()))
     print("Load bucket parquet table {} success.".format(table.full_name()))
     print(spark_client.execute_and_fetchall(
         "select count(*) from {} limit 10".format(tpch_table.full_name())))

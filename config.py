@@ -16,7 +16,6 @@ spark_conf.set("spark.io.compression.codec", "LZ4")
 spark_conf.set("spark.memory.offHeap.enabled", "true")
 spark_conf.set("spark.memory.offHeap.size", "10G")
 
-
 output_dir = "/home/admin123/Downloads"
 
 tpch_shards_repartition = {

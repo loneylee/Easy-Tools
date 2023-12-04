@@ -53,6 +53,7 @@ class Table(object):
         self.shard_cols: Shard = Shard([])
         self.partition_cols = []
         self.external_path = ""
+        self.repartition = 0
 
     def to_sql(self, engine) -> list:
         sql = []
@@ -94,3 +95,9 @@ class Table(object):
             else:
                 sql += ",\n" + column.to_sql(engine)
         return sql
+
+    def select_repartition(self):
+        if self.repartition > 0:
+            return " /*+ repartition({}) */ ".format(self.repartition)
+
+        return ""
