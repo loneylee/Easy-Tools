@@ -108,7 +108,8 @@ def load_bucket_data(table: Table, tpch, mergetree_path: str):
             os.system("""
             clickhouse-local --multiquery --query "{query}" \
             --log-level error --logger.console \
-            --max_insert_block_size 1048576000 --input_format_parquet_max_block_size 1048576000\
+            --max_insert_block_size 10485760000 --input_format_parquet_max_block_size 10485760000\
+            --min_insert_block_size_rows 3048576000 --min_insert_block_size_bytes 3048576000\
             --path {bucket_path}
             """.format(query=bucket_sql.replace("\n", " ").replace("`", "\\`"),
                        bucket_path=mergetree_bucket_path))
