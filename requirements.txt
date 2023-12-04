@@ -20,6 +20,5 @@ clickhouse_sqlalchemy==0.2.0
 sqlalchemy==1.4.32
 
 pyspark~=3.5.0
-pyspark-stubs~=3.0.0.post3
 
 pyarrow
