@@ -100,7 +100,6 @@ def load_bucket_data(table: Table, tpch, mergetree_path: str):
 
         index = 0
         for file in bucket_files[bucket_num]:
-            index += 1
             bucket_sql = """
                  insert into TABLE {database}.{table_name} SELECT * FROM file('{file}', 'Parquet');
                  """.format(database=tpch_mergetree_table.database, table_name="`" + tpch_mergetree_table.name + "`",
@@ -117,22 +116,28 @@ def load_bucket_data(table: Table, tpch, mergetree_path: str):
             bucket_rel_mergetree_path = tpch_mergetree_table.database + os.sep + tpch_mergetree_table.name
             ch_part_path = mergetree_bucket_path + os.sep + "data" + os.sep + bucket_rel_mergetree_path
             mregetree_part_path = mergetree_path + os.sep + "mergetree" + os.sep + "defalut" + os.sep + bucket_rel_mergetree_path
-            part_index = mregetree_part_path + os.sep + "all_" + str(index) + "_" + str(index) + "_0"
 
             if not os.path.exists(mregetree_part_path):
                 os.makedirs(mregetree_part_path)
 
-            os.system("mv {} {}".format(ch_part_path + os.sep + "all_1_1_0", part_index))
-
-            if index == 1:
+            if index == 0:
                 os.system("""
                                cp {} {}
                                """.format(
                     ch_part_path + os.sep + "format_version.txt",
                     mregetree_part_path + os.sep
                 ))
-            print("Load table {} bucket {} file {} part {} Success.".format(tpch_mergetree_table.name, bucket_num, file,
-                                                                            part_index))
+
+            for part_file in os.listdir(ch_part_path + os.sep):
+                if os.path.isdir(ch_part_path + os.sep + part_file) and part_file.startswith("all_") and part_file.endswith("_0"):
+                    index += 1
+                    part_index = mregetree_part_path + os.sep + "all_" + str(index) + "_" + str(index) + "_0"
+                    os.system("mv {} {}".format(ch_part_path + os.sep + part_file, part_index))
+
+                    print("Load table {} bucket {} file {} part {} Success.".format(
+                        tpch_mergetree_table.name, bucket_num,
+                        file,
+                        part_index))
 
 
 def parser(ori_path: str, bucket_path: str):
