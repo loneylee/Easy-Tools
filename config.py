@@ -1,4 +1,5 @@
 from pyspark import SparkConf
+from resources.datasets.tpch import TPCH, DataSetBase
 
 clickhouse_info = {
     'host': "localhost",
@@ -28,6 +29,8 @@ tpch_shards_repartition = {
     "region": (1, 1),
     "supplier": (1, 1)
 }
+
+mergetree_dest_dataset: DataSetBase = TPCH("bucket_tpch", use_bucket_=True)
 
 
 class _ClickhouseConfig(object):
