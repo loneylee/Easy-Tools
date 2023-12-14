@@ -5,10 +5,9 @@ import pyarrow.parquet as parquet
 
 from commons.client.clickhouse import CHClient
 from commons.client.spark import SparkClient
-from config import ClickhouseConfig
-from resources.sqls.tpch import TPCH, Table, Column, ColumnTypeEnum, ColumnType
-
-tpch_bucket_database = "bucket_tpch"
+from commons.utils.SQLHelper import Table, Column, ColumnTypeEnum, ColumnType
+from config import ClickhouseConfig, mergetree_dest_dataset
+from resources.datasets.dataset import DataSetBase
 
 arrow_type_map = {
     "int64": ColumnTypeEnum.BIGINT,
@@ -59,34 +58,36 @@ def parse_table(table_path: str, table_name: str) -> Table:
     return table
 
 
-def load_bucket_data(table: Table, tpch, mergetree_path: str):
+def load_bucket_data(table: Table, dataset: DataSetBase, mergetree_path: str):
     mergetree_bucket_path = mergetree_path + os.sep + "clickhouse"
 
-    if table is None or tpch.tables.get(table.name) is None:
+    if table is None or dataset.get_tables().get(table.name) is None:
         return
 
-    tpch_table: Table = tpch.tables[table.name]
-    spark_client.create_table(tpch_table)
+    dataset_table: Table = dataset.get_tables()[table.name]
+    spark_client.create_table(dataset_table)
     spark_client.execute(
-        "insert into {} select {} * from {}".format(tpch_table.full_name(), tpch_table.select_repartition(),
-                                                    table.full_name()))
+        "insert into {dest_table_full_name} select {repartition} {column_names} from {table_fill_name}".format(
+            dest_table_full_name=dataset_table.full_name(), repartition=dataset_table.select_repartition(),
+            column_names=dataset_table.sql_select_all_column(),
+            table_fill_name=table.full_name()))
     print("Load bucket parquet table {} success.".format(table.full_name()))
     print(spark_client.execute_and_fetchall(
-        "select count(*) from {} limit 10".format(tpch_table.full_name())))
+        "select count(*) from {} limit 10".format(dataset_table.full_name())))
 
     bucket_files = {}
-    for file in os.listdir(tpch_table.external_path):
+    for file in os.listdir(dataset_table.external_path):
         if file.endswith("parquet"):
             bucket_num = file.split(".")[0].split("_")[-1]
             bucket_files.setdefault(bucket_num, [])
-            bucket_files[bucket_num].append(tpch_table.external_path + os.sep + file)
+            bucket_files[bucket_num].append(dataset_table.external_path + os.sep + file)
 
     ch = CHClient(ClickhouseConfig)
 
     for bucket_num in bucket_files.keys():
-        tpch_mergetree_table = copy.copy(tpch_table)
+        tpch_mergetree_table = copy.copy(dataset_table)
         tpch_mergetree_table.name = bucket_num
-        tpch_mergetree_table.database = tpch_table.name
+        tpch_mergetree_table.database = dataset_table.name
 
         os.system("""
              clickhouse-local --multiquery --query "{query}" \
@@ -130,7 +131,8 @@ def load_bucket_data(table: Table, tpch, mergetree_path: str):
                 ))
 
             for part_file in os.listdir(ch_part_path + os.sep):
-                if os.path.isdir(ch_part_path + os.sep + part_file) and part_file.startswith("all_") and part_file.endswith("_0"):
+                if os.path.isdir(ch_part_path + os.sep + part_file) and part_file.startswith(
+                        "all_") and part_file.endswith("_0"):
                     index += 1
                     part_index = mregetree_part_path + os.sep + "all_" + str(index) + "_" + str(index) + "_0"
                     os.system("mv {} {}".format(ch_part_path + os.sep + part_file, part_index))
@@ -143,7 +145,7 @@ def load_bucket_data(table: Table, tpch, mergetree_path: str):
 
 def parser(ori_path: str, bucket_path: str):
     mergetree_bucket_path: str = bucket_path + "-mergetree"
-    tpch = TPCH(tpch_bucket_database, use_bucket_=True, external_path_=bucket_path)
+    mergetree_dest_dataset.set_external_path(bucket_path)
 
     if not os.path.exists(bucket_path):
         os.makedirs(bucket_path)
@@ -152,4 +154,4 @@ def parser(ori_path: str, bucket_path: str):
         table_path = ori_path + os.sep + table_name
         if os.path.isdir(table_path):
             table = parse_table(table_path, table_name)
-            load_bucket_data(table, tpch, mergetree_bucket_path)
+            load_bucket_data(table, mergetree_dest_dataset, mergetree_bucket_path)

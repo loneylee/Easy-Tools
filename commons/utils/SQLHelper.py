@@ -96,6 +96,16 @@ class Table(object):
                 sql += ",\n" + column.to_sql(engine)
         return sql
 
+    def sql_select_all_column(self):
+        res = ""
+        for column in self.columns:
+            if len(res) == 0:
+                res = column.name
+            else:
+                res += "," + column.name
+
+        return res
+
     def select_repartition(self):
         if self.repartition > 0:
             return " /*+ repartition({}) */ ".format(self.repartition)

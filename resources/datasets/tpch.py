@@ -2,11 +2,12 @@ import os
 
 import config
 from commons.utils.SQLHelper import Table, Column, ColumnType, ColumnTypeEnum, Shard
+from resources.datasets.dataset import DataSetBase
 
 TPCH_TABLES = ["customer", "lineitem", "nation", "orders", "part", "partsupp", "region", "supplier"]
 
 
-class TPCH(object):
+class TPCH(DataSetBase):
     def __init__(self, database_: str, nullable_: bool = False, use_decimal_: bool = False, use_bucket_: bool = True,
                  external_path_: str = "", use_orders_: bool = False):
         self.database = database_
@@ -16,11 +17,25 @@ class TPCH(object):
         self.use_orders = use_orders_
         self.tables = {}
         self.external_path = external_path_
+        self.is_init = False
 
+    def _init_table(self):
         for table_name in TPCH_TABLES:
-            self.tables[table_name] = self.__class__.__getattribute__(self, "_" + table_name)()
+            self.tables[table_name] = self.__class__.__getattribute__(self, "__" + table_name + "__")()
 
-    def _customer(self):
+        self.is_init = True
+
+    def get_tables(self) -> dict:
+        if not self.is_init:
+            self._init_table()
+
+        return self.tables
+
+    def set_external_path(self, external_path_: str):
+        if len(external_path_) != 0:
+            self.external_path = external_path_
+
+    def __customer__(self):
         name = "customer"
         t_customer = Table(name, self.database)
 
@@ -49,7 +64,7 @@ class TPCH(object):
 
         return t_customer
 
-    def _lineitem(self):
+    def __lineitem__(self):
         name = "lineitem"
         t_lineitem = Table(name, self.database)
         t_lineitem.repartition = config.tpch_shards_repartition.get(name)[1]
@@ -84,7 +99,7 @@ class TPCH(object):
 
         return t_lineitem
 
-    def _nation(self):
+    def __nation__(self):
         name = "nation"
         t_nation = Table(name, self.database)
         t_nation.repartition = config.tpch_shards_repartition.get(name)[1]
@@ -107,7 +122,7 @@ class TPCH(object):
 
             return t_nation
 
-    def _orders(self):
+    def __orders__(self):
         name = "orders"
         t_orders = Table(name, self.database)
         t_orders.repartition = config.tpch_shards_repartition.get(name)[1]
@@ -134,7 +149,7 @@ class TPCH(object):
 
         return t_orders
 
-    def _part(self):
+    def __part__(self):
         name = "part"
         t_part = Table(name, self.database)
         t_part.repartition = config.tpch_shards_repartition.get(name)[1]
@@ -162,7 +177,7 @@ class TPCH(object):
 
         return t_part
 
-    def _partsupp(self):
+    def __partsupp__(self):
         name = "partsupp"
         t_partsupp = Table(name, self.database)
         t_partsupp.repartition = config.tpch_shards_repartition.get(name)[1]
@@ -186,7 +201,7 @@ class TPCH(object):
 
         return t_partsupp
 
-    def _region(self):
+    def __region__(self):
         name = "region"
         t_region = Table(name, self.database)
         t_region.repartition = config.tpch_shards_repartition.get(name)[1]
@@ -208,7 +223,7 @@ class TPCH(object):
 
         return t_region
 
-    def _supplier(self):
+    def __supplier__(self):
         name = "supplier"
         t_supplier = Table(name, self.database)
         t_supplier.repartition = config.tpch_shards_repartition.get(name)[1]
