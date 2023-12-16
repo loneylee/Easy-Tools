@@ -76,8 +76,18 @@ def merge_plan(datas: list):
         total_output_rows = 0
         total_output_bytes = 0
 
+        min_input_wait_us: int = sys.maxsize
+        max_input_wait_us: int = 0
+        min_output_wait_us: int = sys.maxsize
+        max_output_wait_us: int = 0
+        total_input_wait = 0
+        total_output_wait = 0
+
         for node in merge_map.get(step_key):
             elapsed_us: int = int(node.elapsed_us)
+            input_wait: int = int(node.input_wait_elapsed_us)
+            output_wait: int = int(node.output_wait_elapsed_us)
+
             total_elapsed_us = total_elapsed_us + elapsed_us
             min_elapsed_us = min(min_elapsed_us, elapsed_us)
             max_elapsed_us = max(max_elapsed_us, elapsed_us)
@@ -89,6 +99,14 @@ def merge_plan(datas: list):
             total_input_bytes = total_input_bytes + int(node.input_bytes)
             total_output_rows = total_output_rows + int(node.output_rows)
             total_output_bytes = total_output_bytes + int(node.output_bytes)
+
+            min_input_wait_us = min(min_input_wait_us, input_wait)
+            max_input_wait_us = max(max_input_wait_us, input_wait)
+            min_output_wait_us = min(min_output_wait_us, output_wait)
+            max_output_wait_us = max(max_output_wait_us, output_wait)
+
+            total_input_wait = total_input_wait + input_wait
+            total_output_wait = total_output_wait + output_wait
 
             origin_ids.append(node.id)
             datas.remove(node)
@@ -104,8 +122,18 @@ def merge_plan(datas: list):
                                     format(int(max_elapsed_us / 1000), ','),
                                     format(int(total_elapsed_us / 1000 / length), ',')
                                 ),
-                                input_wait_elapsed_us=fnode.input_wait_elapsed_us,
-                                output_wait_elapsed_us=fnode.output_wait_elapsed_us,
+                                input_wait_elapsed_us="{}({}, {}, {})".format(
+                                    format(int(total_input_wait / 1000), ','),
+                                    format(int(min_input_wait_us / 1000), ','),
+                                    format(int(max_input_wait_us / 1000), ','),
+                                    format(int(total_input_wait / 1000 / length), ',')
+                                ),
+                                output_wait_elapsed_us="{}({}, {}, {})".format(
+                                    format(int(total_output_wait / 1000), ','),
+                                    format(int(min_output_wait_us / 1000), ','),
+                                    format(int(max_output_wait_us / 1000), ','),
+                                    format(int(total_output_wait / 1000 / length), ',')
+                                ),
                                 input_bytes="{}({})".format(format(total_input_bytes, ","),
                                                             to_memory_readable(total_input_bytes)),
                                 input_rows=format(total_input_rows, ","),
