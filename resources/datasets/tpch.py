@@ -39,7 +39,7 @@ class TPCH(DataSetBase):
         name = "customer"
         t_customer = Table(name, self.database)
 
-        t_customer.repartition = config.tpch_shards_repartition.get(name)[1]
+        t_customer.repartition = config.shards_repartition.get(name)[1]
         t_customer.external_path = self.external_path + os.sep + name
 
         t_customer.columns.append(Column("c_custkey", ColumnType(ColumnTypeEnum.BIGINT), self.nullable))
@@ -58,7 +58,7 @@ class TPCH(DataSetBase):
             t_customer.order_cols = ["c_custkey"]
             t_customer.shard_cols = Shard(
                 ["c_custkey"],
-                config.tpch_shards_repartition.get(name)[0],
+                config.shards_repartition.get(name)[0],
                 t_customer.order_cols
             )
 
@@ -67,7 +67,7 @@ class TPCH(DataSetBase):
     def __lineitem__(self):
         name = "lineitem"
         t_lineitem = Table(name, self.database)
-        t_lineitem.repartition = config.tpch_shards_repartition.get(name)[1]
+        t_lineitem.repartition = config.shards_repartition.get(name)[1]
         t_lineitem.external_path = self.external_path + os.sep + name
         t_lineitem.columns.append(Column("l_orderkey", ColumnType(ColumnTypeEnum.BIGINT), self.nullable))
         t_lineitem.columns.append(Column("l_partkey", ColumnType(ColumnTypeEnum.BIGINT), self.nullable))
@@ -93,7 +93,7 @@ class TPCH(DataSetBase):
             t_lineitem.order_cols = ["l_shipdate", "l_orderkey"]
             t_lineitem.shard_cols = Shard(
                 ["l_orderkey"],
-                config.tpch_shards_repartition.get(name)[0],
+                config.shards_repartition.get(name)[0],
                 t_lineitem.order_cols
             )
 
@@ -102,7 +102,7 @@ class TPCH(DataSetBase):
     def __nation__(self):
         name = "nation"
         t_nation = Table(name, self.database)
-        t_nation.repartition = config.tpch_shards_repartition.get(name)[1]
+        t_nation.repartition = config.shards_repartition.get(name)[1]
         t_nation.external_path = self.external_path + os.sep + name
         t_nation.columns.append(Column("n_nationkey", ColumnType(ColumnTypeEnum.BIGINT), self.nullable))
         t_nation.columns.append(Column("n_name", ColumnType(ColumnTypeEnum.STRING), self.nullable))
@@ -116,7 +116,7 @@ class TPCH(DataSetBase):
             t_nation.order_cols = ["n_nationkey"]
             t_nation.shard_cols = Shard(
                 ["n_nationkey"],
-                config.tpch_shards_repartition.get(name)[0],
+                config.shards_repartition.get(name)[0],
                 t_nation.order_cols
             )
 
@@ -125,7 +125,7 @@ class TPCH(DataSetBase):
     def __orders__(self):
         name = "orders"
         t_orders = Table(name, self.database)
-        t_orders.repartition = config.tpch_shards_repartition.get(name)[1]
+        t_orders.repartition = config.shards_repartition.get(name)[1]
         t_orders.external_path = self.external_path + os.sep + name
         t_orders.columns.append(Column("o_orderkey", ColumnType(ColumnTypeEnum.BIGINT), self.nullable))
         t_orders.columns.append(Column("o_custkey", ColumnType(ColumnTypeEnum.BIGINT), self.nullable))
@@ -144,7 +144,7 @@ class TPCH(DataSetBase):
             t_orders.order_cols = ["o_orderkey", "o_orderdate"]
             t_orders.shard_cols = Shard(
                 ["o_orderkey"],
-                config.tpch_shards_repartition.get(name)[0],
+                config.shards_repartition.get(name)[0],
                 t_orders.order_cols)
 
         return t_orders
@@ -152,7 +152,7 @@ class TPCH(DataSetBase):
     def __part__(self):
         name = "part"
         t_part = Table(name, self.database)
-        t_part.repartition = config.tpch_shards_repartition.get(name)[1]
+        t_part.repartition = config.shards_repartition.get(name)[1]
         t_part.external_path = self.external_path + os.sep + name
         t_part.columns.append(Column("p_partkey", ColumnType(ColumnTypeEnum.BIGINT), self.nullable))
         t_part.columns.append(Column("p_name", ColumnType(ColumnTypeEnum.STRING), self.nullable))
@@ -171,7 +171,7 @@ class TPCH(DataSetBase):
             t_part.order_cols = ["p_partkey"]
             t_part.shard_cols = Shard(
                 ["p_partkey"],
-                config.tpch_shards_repartition.get(name)[0],
+                config.shards_repartition.get(name)[0],
                 t_part.order_cols
             )
 
@@ -180,7 +180,7 @@ class TPCH(DataSetBase):
     def __partsupp__(self):
         name = "partsupp"
         t_partsupp = Table(name, self.database)
-        t_partsupp.repartition = config.tpch_shards_repartition.get(name)[1]
+        t_partsupp.repartition = config.shards_repartition.get(name)[1]
         t_partsupp.external_path = self.external_path + os.sep + name
         t_partsupp.columns.append(Column("ps_partkey", ColumnType(ColumnTypeEnum.BIGINT), self.nullable))
         t_partsupp.columns.append(Column("ps_suppkey", ColumnType(ColumnTypeEnum.BIGINT), self.nullable))
@@ -195,7 +195,7 @@ class TPCH(DataSetBase):
             t_partsupp.order_cols = ["ps_partkey"]
             t_partsupp.shard_cols = Shard(
                 ["ps_partkey"],
-                config.tpch_shards_repartition.get(name)[0],
+                config.shards_repartition.get(name)[0],
                 t_partsupp.order_cols
             )
 
@@ -204,7 +204,7 @@ class TPCH(DataSetBase):
     def __region__(self):
         name = "region"
         t_region = Table(name, self.database)
-        t_region.repartition = config.tpch_shards_repartition.get(name)[1]
+        t_region.repartition = config.shards_repartition.get(name)[1]
         t_region.external_path = self.external_path + os.sep + name
         t_region.columns.append(Column("r_regionkey", ColumnType(ColumnTypeEnum.BIGINT), self.nullable))
         t_region.columns.append(Column("r_name", ColumnType(ColumnTypeEnum.STRING), self.nullable))
@@ -217,7 +217,7 @@ class TPCH(DataSetBase):
             t_region.order_cols = ["r_regionkey"]
             t_region.shard_cols = Shard(
                 ["r_regionkey"],
-                config.tpch_shards_repartition.get(name)[0],
+                config.shards_repartition.get(name)[0],
                 t_region.order_cols
             )
 
@@ -226,7 +226,7 @@ class TPCH(DataSetBase):
     def __supplier__(self):
         name = "supplier"
         t_supplier = Table(name, self.database)
-        t_supplier.repartition = config.tpch_shards_repartition.get(name)[1]
+        t_supplier.repartition = config.shards_repartition.get(name)[1]
         t_supplier.external_path = self.external_path + os.sep + name
         t_supplier.columns.append(Column("s_suppkey", ColumnType(ColumnTypeEnum.BIGINT), self.nullable))
         t_supplier.columns.append(Column("s_name", ColumnType(ColumnTypeEnum.STRING), self.nullable))
@@ -243,7 +243,7 @@ class TPCH(DataSetBase):
             t_supplier.order_cols = ["s_suppkey"]
             t_supplier.shard_cols = Shard(
                 ["s_suppkey"],
-                config.tpch_shards_repartition.get(name)[0],
+                config.shards_repartition.get(name)[0],
                 t_supplier.order_cols
             )
 

@@ -15,17 +15,19 @@ spark_conf.set("spark.memory.fraction", "0.6")
 spark_conf.set("spark.memory.storageFraction", "0.3")
 spark_conf.set("spark.io.compression.codec", "LZ4")
 spark_conf.set("spark.memory.offHeap.enabled", "true")
-spark_conf.set("spark.memory.offHeap.size", "10G")
+spark_conf.set("spark.memory.offHeap.size", "20G")
+# spark_conf.set("spark.local.dir", "/shuffle/lishuai/tmp");
+spark_conf.set("parquet.block.size", "1073741824")
 
 output_dir = "/home/admin123/Downloads"
 
-tpch_shards_repartition = {
-    "customer": (15, 2),
-    "lineitem": (90, 3),
+shards_repartition = {
+    "customer": (15, 3),
+    "lineitem": (90, 1),
     "nation": (1, 1),
     "orders": (90, 1),
-    "part": (15, 1),
-    "partsupp": (15, 2),
+    "part": (15, 3),
+    "partsupp": (15, 3),
     "region": (1, 1),
     "supplier": (1, 1)
 }
