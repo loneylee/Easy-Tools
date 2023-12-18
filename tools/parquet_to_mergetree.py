@@ -1,4 +1,5 @@
 import copy
+import csv
 import os
 
 import pyarrow.parquet as parquet
@@ -29,6 +30,26 @@ def arrow_type_to_sql_type(type):
     return ColumnType(sql_type, [])
 
 
+def read_csv_schema(file: str, table_name_: str, dataset: DataSetBase) -> Table:
+    table = Table(table_name_)
+    table.format = "csv"
+
+    if table is None or dataset.get_tables().get(table.name) is None:
+        return table
+
+    dataset_table: Table = dataset.get_tables()[table.name]
+
+    with open(file, "r", newline='') as f:
+        reader = csv.reader(f, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
+
+        for row in reader:
+            for idx in range(0, len(row)):
+                if len(dataset_table.columns) > idx:
+                    table.columns.append(dataset_table.columns[idx])
+            break
+    return table
+
+
 def read_parquet_schema(file: str, table_name_: str) -> Table:
     schema = parquet.read_schema(file)
 
@@ -40,21 +61,29 @@ def read_parquet_schema(file: str, table_name_: str) -> Table:
     return table
 
 
-def parse_table(table_path: str, table_name: str) -> Table:
+def parse_table(table_path: str, table_name: str, ori_format: str, dataset: DataSetBase) -> Table:
     files = []
     for file in os.listdir(table_path):
-        if file.endswith("parquet"):
+        if file.endswith(ori_format):
             files.append(table_path + os.sep + file)
 
     if len(files) == 0:
         return None
 
     sample_file = files[0]
-    table = read_parquet_schema(sample_file, table_name)
+
+    if ori_format == "parquet":
+        table = read_parquet_schema(sample_file, table_name)
+    elif ori_format == "csv":
+        table = read_csv_schema(sample_file, table_name, dataset)
+    else:
+        return None
+
     table.external_path = table_path
     spark_client.create_table(table)
-    print("Load origin parquet table {} success.".format(table.full_name()))
-    print(spark_client.execute_and_fetchall("select count(*) from {} limit 10".format(table.full_name())))
+    print("Load origin {} table {} success.".format(ori_format, table.full_name()))
+    print(spark_client.execute_and_fetchall("select count(*) from {}".format(table.full_name())))
+    print(spark_client.execute_and_fetchall("select * from {} limit 10".format(table.full_name())))
     return table
 
 
@@ -143,7 +172,7 @@ def load_bucket_data(table: Table, dataset: DataSetBase, mergetree_path: str):
                         part_index))
 
 
-def parser(ori_path: str, bucket_path: str):
+def parser(ori_path: str, bucket_path: str, ori_format: str):
     mergetree_bucket_path: str = bucket_path + "-mergetree"
     mergetree_dest_dataset.set_external_path(bucket_path)
 
@@ -153,5 +182,5 @@ def parser(ori_path: str, bucket_path: str):
     for table_name in os.listdir(ori_path):
         table_path = ori_path + os.sep + table_name
         if os.path.isdir(table_path):
-            table = parse_table(table_path, table_name)
+            table = parse_table(table_path, table_name, ori_format, mergetree_dest_dataset)
             load_bucket_data(table, mergetree_dest_dataset, mergetree_bucket_path)

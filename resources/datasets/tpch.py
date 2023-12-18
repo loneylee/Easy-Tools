@@ -42,14 +42,14 @@ class TPCH(DataSetBase):
         t_customer.repartition = config.shards_repartition.get(name)[1]
         t_customer.external_path = self.external_path + os.sep + name
 
-        t_customer.columns.append(Column("c_custkey", ColumnType(ColumnTypeEnum.BIGINT), self.nullable))
-        t_customer.columns.append(Column("c_name", ColumnType(ColumnTypeEnum.STRING), self.nullable))
-        t_customer.columns.append(Column("c_address", ColumnType(ColumnTypeEnum.STRING), self.nullable))
-        t_customer.columns.append(Column("c_nationkey", ColumnType(ColumnTypeEnum.BIGINT), self.nullable))
-        t_customer.columns.append(Column("c_phone", ColumnType(ColumnTypeEnum.STRING), self.nullable))
-        t_customer.columns.append(Column("c_acctbal", ColumnType(ColumnTypeEnum.DOUBLE), self.nullable))
-        t_customer.columns.append(Column("c_mktsegment", ColumnType(ColumnTypeEnum.STRING), self.nullable))
-        t_customer.columns.append(Column("c_comment", ColumnType(ColumnTypeEnum.STRING), self.nullable))
+        t_customer.add_column(Column("c_custkey", ColumnType(ColumnTypeEnum.BIGINT), self.nullable))
+        t_customer.add_column(Column("c_name", ColumnType(ColumnTypeEnum.STRING), self.nullable))
+        t_customer.add_column(Column("c_address", ColumnType(ColumnTypeEnum.STRING), self.nullable))
+        t_customer.add_column(Column("c_nationkey", ColumnType(ColumnTypeEnum.BIGINT), self.nullable))
+        t_customer.add_column(Column("c_phone", ColumnType(ColumnTypeEnum.STRING), self.nullable))
+        t_customer.add_column(Column("c_acctbal", ColumnType(ColumnTypeEnum.DOUBLE), self.nullable))
+        t_customer.add_column(Column("c_mktsegment", ColumnType(ColumnTypeEnum.STRING), self.nullable))
+        t_customer.add_column(Column("c_comment", ColumnType(ColumnTypeEnum.STRING), self.nullable))
 
         if self.use_orders:
             t_customer.order_cols = ["c_custkey"]
@@ -69,22 +69,22 @@ class TPCH(DataSetBase):
         t_lineitem = Table(name, self.database)
         t_lineitem.repartition = config.shards_repartition.get(name)[1]
         t_lineitem.external_path = self.external_path + os.sep + name
-        t_lineitem.columns.append(Column("l_orderkey", ColumnType(ColumnTypeEnum.BIGINT), self.nullable))
-        t_lineitem.columns.append(Column("l_partkey", ColumnType(ColumnTypeEnum.BIGINT), self.nullable))
-        t_lineitem.columns.append(Column("l_suppkey", ColumnType(ColumnTypeEnum.BIGINT), self.nullable))
-        t_lineitem.columns.append(Column("l_linenumber", ColumnType(ColumnTypeEnum.BIGINT), self.nullable))
-        t_lineitem.columns.append(Column("l_quantity", ColumnType(ColumnTypeEnum.DOUBLE), self.nullable))
-        t_lineitem.columns.append(Column("l_extendedprice", ColumnType(ColumnTypeEnum.DOUBLE), self.nullable))
-        t_lineitem.columns.append(Column("l_discount", ColumnType(ColumnTypeEnum.DOUBLE), self.nullable))
-        t_lineitem.columns.append(Column("l_tax", ColumnType(ColumnTypeEnum.DOUBLE), self.nullable))
-        t_lineitem.columns.append(Column("l_returnflag", ColumnType(ColumnTypeEnum.STRING), self.nullable))
-        t_lineitem.columns.append(Column("l_linestatus", ColumnType(ColumnTypeEnum.STRING), self.nullable))
-        t_lineitem.columns.append(Column("l_shipdate", ColumnType(ColumnTypeEnum.DATE), self.nullable))
-        t_lineitem.columns.append(Column("l_commitdate", ColumnType(ColumnTypeEnum.DATE), self.nullable))
-        t_lineitem.columns.append(Column("l_receiptdate", ColumnType(ColumnTypeEnum.DATE), self.nullable))
-        t_lineitem.columns.append(Column("l_shipinstruct", ColumnType(ColumnTypeEnum.STRING), self.nullable))
-        t_lineitem.columns.append(Column("l_shipmode", ColumnType(ColumnTypeEnum.STRING), self.nullable))
-        t_lineitem.columns.append(Column("l_comment", ColumnType(ColumnTypeEnum.STRING), self.nullable))
+        t_lineitem.add_column(Column("l_orderkey", ColumnType(ColumnTypeEnum.BIGINT), self.nullable))
+        t_lineitem.add_column(Column("l_partkey", ColumnType(ColumnTypeEnum.BIGINT), self.nullable))
+        t_lineitem.add_column(Column("l_suppkey", ColumnType(ColumnTypeEnum.BIGINT), self.nullable))
+        t_lineitem.add_column(Column("l_linenumber", ColumnType(ColumnTypeEnum.BIGINT), self.nullable))
+        t_lineitem.add_column(Column("l_quantity", ColumnType(ColumnTypeEnum.DOUBLE), self.nullable))
+        t_lineitem.add_column(Column("l_extendedprice", ColumnType(ColumnTypeEnum.DOUBLE), self.nullable))
+        t_lineitem.add_column(Column("l_discount", ColumnType(ColumnTypeEnum.DOUBLE), self.nullable))
+        t_lineitem.add_column(Column("l_tax", ColumnType(ColumnTypeEnum.DOUBLE), self.nullable))
+        t_lineitem.add_column(Column("l_returnflag", ColumnType(ColumnTypeEnum.STRING), self.nullable))
+        t_lineitem.add_column(Column("l_linestatus", ColumnType(ColumnTypeEnum.STRING), self.nullable))
+        t_lineitem.add_column(Column("l_shipdate", ColumnType(ColumnTypeEnum.DATE), self.nullable))
+        t_lineitem.add_column(Column("l_commitdate", ColumnType(ColumnTypeEnum.DATE), self.nullable))
+        t_lineitem.add_column(Column("l_receiptdate", ColumnType(ColumnTypeEnum.DATE), self.nullable))
+        t_lineitem.add_column(Column("l_shipinstruct", ColumnType(ColumnTypeEnum.STRING), self.nullable))
+        t_lineitem.add_column(Column("l_shipmode", ColumnType(ColumnTypeEnum.STRING), self.nullable))
+        t_lineitem.add_column(Column("l_comment", ColumnType(ColumnTypeEnum.STRING), self.nullable))
 
         if self.use_orders:
             t_lineitem.order_cols = ["l_shipdate", "l_orderkey"]
@@ -104,10 +104,10 @@ class TPCH(DataSetBase):
         t_nation = Table(name, self.database)
         t_nation.repartition = config.shards_repartition.get(name)[1]
         t_nation.external_path = self.external_path + os.sep + name
-        t_nation.columns.append(Column("n_nationkey", ColumnType(ColumnTypeEnum.BIGINT), self.nullable))
-        t_nation.columns.append(Column("n_name", ColumnType(ColumnTypeEnum.STRING), self.nullable))
-        t_nation.columns.append(Column("n_regionkey", ColumnType(ColumnTypeEnum.BIGINT), self.nullable))
-        t_nation.columns.append(Column("n_comment", ColumnType(ColumnTypeEnum.STRING), self.nullable))
+        t_nation.add_column(Column("n_nationkey", ColumnType(ColumnTypeEnum.BIGINT), self.nullable))
+        t_nation.add_column(Column("n_name", ColumnType(ColumnTypeEnum.STRING), self.nullable))
+        t_nation.add_column(Column("n_regionkey", ColumnType(ColumnTypeEnum.BIGINT), self.nullable))
+        t_nation.add_column(Column("n_comment", ColumnType(ColumnTypeEnum.STRING), self.nullable))
 
         if self.use_orders:
             t_nation.order_cols = ["n_nationkey"]
@@ -127,15 +127,15 @@ class TPCH(DataSetBase):
         t_orders = Table(name, self.database)
         t_orders.repartition = config.shards_repartition.get(name)[1]
         t_orders.external_path = self.external_path + os.sep + name
-        t_orders.columns.append(Column("o_orderkey", ColumnType(ColumnTypeEnum.BIGINT), self.nullable))
-        t_orders.columns.append(Column("o_custkey", ColumnType(ColumnTypeEnum.BIGINT), self.nullable))
-        t_orders.columns.append(Column("o_orderstatus", ColumnType(ColumnTypeEnum.STRING), self.nullable))
-        t_orders.columns.append(Column("o_totalprice", ColumnType(ColumnTypeEnum.DOUBLE), self.nullable))
-        t_orders.columns.append(Column("o_orderdate", ColumnType(ColumnTypeEnum.DATE), self.nullable))
-        t_orders.columns.append(Column("o_orderpriority", ColumnType(ColumnTypeEnum.STRING), self.nullable))
-        t_orders.columns.append(Column("o_clerk", ColumnType(ColumnTypeEnum.STRING), self.nullable))
-        t_orders.columns.append(Column("o_shippriority", ColumnType(ColumnTypeEnum.BIGINT), self.nullable))
-        t_orders.columns.append(Column("o_comment", ColumnType(ColumnTypeEnum.STRING), self.nullable))
+        t_orders.add_column(Column("o_orderkey", ColumnType(ColumnTypeEnum.BIGINT), self.nullable))
+        t_orders.add_column(Column("o_custkey", ColumnType(ColumnTypeEnum.BIGINT), self.nullable))
+        t_orders.add_column(Column("o_orderstatus", ColumnType(ColumnTypeEnum.STRING), self.nullable))
+        t_orders.add_column(Column("o_totalprice", ColumnType(ColumnTypeEnum.DOUBLE), self.nullable))
+        t_orders.add_column(Column("o_orderdate", ColumnType(ColumnTypeEnum.DATE), self.nullable))
+        t_orders.add_column(Column("o_orderpriority", ColumnType(ColumnTypeEnum.STRING), self.nullable))
+        t_orders.add_column(Column("o_clerk", ColumnType(ColumnTypeEnum.STRING), self.nullable))
+        t_orders.add_column(Column("o_shippriority", ColumnType(ColumnTypeEnum.BIGINT), self.nullable))
+        t_orders.add_column(Column("o_comment", ColumnType(ColumnTypeEnum.STRING), self.nullable))
 
         if self.use_orders:
             t_orders.order_cols = ["o_orderkey", "o_orderdate"]
@@ -154,15 +154,15 @@ class TPCH(DataSetBase):
         t_part = Table(name, self.database)
         t_part.repartition = config.shards_repartition.get(name)[1]
         t_part.external_path = self.external_path + os.sep + name
-        t_part.columns.append(Column("p_partkey", ColumnType(ColumnTypeEnum.BIGINT), self.nullable))
-        t_part.columns.append(Column("p_name", ColumnType(ColumnTypeEnum.STRING), self.nullable))
-        t_part.columns.append(Column("p_mfgr", ColumnType(ColumnTypeEnum.STRING), self.nullable))
-        t_part.columns.append(Column("p_brand", ColumnType(ColumnTypeEnum.STRING), self.nullable))
-        t_part.columns.append(Column("p_type", ColumnType(ColumnTypeEnum.STRING), self.nullable))
-        t_part.columns.append(Column("p_size", ColumnType(ColumnTypeEnum.BIGINT), self.nullable))
-        t_part.columns.append(Column("p_container", ColumnType(ColumnTypeEnum.STRING), self.nullable))
-        t_part.columns.append(Column("p_retailprice", ColumnType(ColumnTypeEnum.DOUBLE), self.nullable))
-        t_part.columns.append(Column("p_comment", ColumnType(ColumnTypeEnum.STRING), self.nullable))
+        t_part.add_column(Column("p_partkey", ColumnType(ColumnTypeEnum.BIGINT), self.nullable))
+        t_part.add_column(Column("p_name", ColumnType(ColumnTypeEnum.STRING), self.nullable))
+        t_part.add_column(Column("p_mfgr", ColumnType(ColumnTypeEnum.STRING), self.nullable))
+        t_part.add_column(Column("p_brand", ColumnType(ColumnTypeEnum.STRING), self.nullable))
+        t_part.add_column(Column("p_type", ColumnType(ColumnTypeEnum.STRING), self.nullable))
+        t_part.add_column(Column("p_size", ColumnType(ColumnTypeEnum.BIGINT), self.nullable))
+        t_part.add_column(Column("p_container", ColumnType(ColumnTypeEnum.STRING), self.nullable))
+        t_part.add_column(Column("p_retailprice", ColumnType(ColumnTypeEnum.DOUBLE), self.nullable))
+        t_part.add_column(Column("p_comment", ColumnType(ColumnTypeEnum.STRING), self.nullable))
 
         if self.use_orders:
             t_part.order_cols = ["p_partkey"]
@@ -182,11 +182,11 @@ class TPCH(DataSetBase):
         t_partsupp = Table(name, self.database)
         t_partsupp.repartition = config.shards_repartition.get(name)[1]
         t_partsupp.external_path = self.external_path + os.sep + name
-        t_partsupp.columns.append(Column("ps_partkey", ColumnType(ColumnTypeEnum.BIGINT), self.nullable))
-        t_partsupp.columns.append(Column("ps_suppkey", ColumnType(ColumnTypeEnum.BIGINT), self.nullable))
-        t_partsupp.columns.append(Column("ps_availqty", ColumnType(ColumnTypeEnum.BIGINT), self.nullable))
-        t_partsupp.columns.append(Column("ps_supplycost", ColumnType(ColumnTypeEnum.DOUBLE), self.nullable))
-        t_partsupp.columns.append(Column("ps_comment", ColumnType(ColumnTypeEnum.STRING), self.nullable))
+        t_partsupp.add_column(Column("ps_partkey", ColumnType(ColumnTypeEnum.BIGINT), self.nullable))
+        t_partsupp.add_column(Column("ps_suppkey", ColumnType(ColumnTypeEnum.BIGINT), self.nullable))
+        t_partsupp.add_column(Column("ps_availqty", ColumnType(ColumnTypeEnum.BIGINT), self.nullable))
+        t_partsupp.add_column(Column("ps_supplycost", ColumnType(ColumnTypeEnum.DOUBLE), self.nullable))
+        t_partsupp.add_column(Column("ps_comment", ColumnType(ColumnTypeEnum.STRING), self.nullable))
 
         if self.use_orders:
             t_partsupp.order_cols = ["ps_partkey"]
@@ -206,9 +206,9 @@ class TPCH(DataSetBase):
         t_region = Table(name, self.database)
         t_region.repartition = config.shards_repartition.get(name)[1]
         t_region.external_path = self.external_path + os.sep + name
-        t_region.columns.append(Column("r_regionkey", ColumnType(ColumnTypeEnum.BIGINT), self.nullable))
-        t_region.columns.append(Column("r_name", ColumnType(ColumnTypeEnum.STRING), self.nullable))
-        t_region.columns.append(Column("r_comment", ColumnType(ColumnTypeEnum.STRING), self.nullable))
+        t_region.add_column(Column("r_regionkey", ColumnType(ColumnTypeEnum.BIGINT), self.nullable))
+        t_region.add_column(Column("r_name", ColumnType(ColumnTypeEnum.STRING), self.nullable))
+        t_region.add_column(Column("r_comment", ColumnType(ColumnTypeEnum.STRING), self.nullable))
 
         if self.use_orders:
             t_region.order_cols = ["r_regionkey"]
@@ -228,13 +228,13 @@ class TPCH(DataSetBase):
         t_supplier = Table(name, self.database)
         t_supplier.repartition = config.shards_repartition.get(name)[1]
         t_supplier.external_path = self.external_path + os.sep + name
-        t_supplier.columns.append(Column("s_suppkey", ColumnType(ColumnTypeEnum.BIGINT), self.nullable))
-        t_supplier.columns.append(Column("s_name", ColumnType(ColumnTypeEnum.STRING), self.nullable))
-        t_supplier.columns.append(Column("s_address", ColumnType(ColumnTypeEnum.STRING), self.nullable))
-        t_supplier.columns.append(Column("s_nationkey", ColumnType(ColumnTypeEnum.BIGINT), self.nullable))
-        t_supplier.columns.append(Column("s_phone", ColumnType(ColumnTypeEnum.STRING), self.nullable))
-        t_supplier.columns.append(Column("s_acctbal", ColumnType(ColumnTypeEnum.DOUBLE), self.nullable))
-        t_supplier.columns.append(Column("s_comment", ColumnType(ColumnTypeEnum.STRING), self.nullable))
+        t_supplier.add_column(Column("s_suppkey", ColumnType(ColumnTypeEnum.BIGINT), self.nullable))
+        t_supplier.add_column(Column("s_name", ColumnType(ColumnTypeEnum.STRING), self.nullable))
+        t_supplier.add_column(Column("s_address", ColumnType(ColumnTypeEnum.STRING), self.nullable))
+        t_supplier.add_column(Column("s_nationkey", ColumnType(ColumnTypeEnum.BIGINT), self.nullable))
+        t_supplier.add_column(Column("s_phone", ColumnType(ColumnTypeEnum.STRING), self.nullable))
+        t_supplier.add_column(Column("s_acctbal", ColumnType(ColumnTypeEnum.DOUBLE), self.nullable))
+        t_supplier.add_column(Column("s_comment", ColumnType(ColumnTypeEnum.STRING), self.nullable))
 
         if self.use_bucket:
             t_supplier.order_cols = ["s_suppkey"]

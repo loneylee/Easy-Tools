@@ -33,7 +33,7 @@ class CHClient(BaseClient):
         cursor.close()
         return result
 
-    def engine_sql(self):
+    def engine_sql(self, fmt: str):
         return " ENGINE=MergeTree() "
 
     def trans_column_type(self, origin_type: ColumnType):
@@ -41,13 +41,13 @@ class CHClient(BaseClient):
         if t is not None:
             return t
 
-        if origin_type == ColumnTypeEnum.VARCHAR:
+        if origin_type.type == ColumnTypeEnum.VARCHAR:
             if len(origin_type.args) != 0:
                 return "FixString({})".format(origin_type.args[0])
             else:
                 return column_type_to_ch_type.get(ColumnTypeEnum.STRING)
 
-        if origin_type == ColumnTypeEnum.DECIMAL:
+        if origin_type.type == ColumnTypeEnum.DECIMAL:
             return "Decimal({},{})".format(origin_type.args[0], origin_type.args[1])
 
         assert False

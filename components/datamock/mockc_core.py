@@ -116,14 +116,14 @@ def read_sample_csv(csv_file: str):
     return columns
 
 
-def write_mock_inner(dirs: str, index: int, columns, total_rows: int):
+def write_mock_inner(dirs: str, index: int, columns, total_rows: int, ignore_header):
     with open(dirs + os.sep + str(index) + ".csv", "w", newline='') as f:
         writer = csv.writer(f, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
         for cnt in range(0, total_rows):
             row = []
             for column in columns:
                 column: Column
-                if cnt == 0:
+                if cnt == 0 and not ignore_header:
                     row.append(column.name)
                 else:
                     row.append(column.rule.get_mock())
@@ -131,13 +131,13 @@ def write_mock_inner(dirs: str, index: int, columns, total_rows: int):
             writer.writerow(row)
 
 
-def write_mock(dirs: str, columns, total_rows: int, max_rows_per_file: int):
+def write_mock(dirs: str, columns, total_rows: int, max_rows_per_file: int, ignore_header: bool):
     index = 0
 
     while total_rows > 0:
         if total_rows > max_rows_per_file:
-            write_mock_inner(dirs, index, columns, max_rows_per_file)
+            write_mock_inner(dirs, index, columns, max_rows_per_file, ignore_header)
         else:
-            write_mock_inner(dirs, index, columns, total_rows)
+            write_mock_inner(dirs, index, columns, total_rows, ignore_header)
 
         total_rows = total_rows - max_rows_per_file

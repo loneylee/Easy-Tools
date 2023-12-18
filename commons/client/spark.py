@@ -27,8 +27,10 @@ class SparkClient(BaseClient):
     def execute(self, stmt):
         spark.sql(stmt)
 
-    def engine_sql(self):
-        return "USING PARQUET"
+    def engine_sql(self, fmt: str):
+        if fmt == "":
+            fmt = "PARQUET"
+        return "USING {}".format(fmt.upper())
 
     def trans_column_type(self, origin_type: ColumnType):
         return origin_type.type.name

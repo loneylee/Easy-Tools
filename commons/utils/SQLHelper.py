@@ -47,7 +47,8 @@ class Table(object):
         self.database = database_
         self.name = name_
         self.columns = []
-        self.engine = ""
+        self.columnMap = {}
+        self.format = ""
         self.order_cols = []
         self.comment = ""
         self.shard_cols: Shard = Shard([])
@@ -76,7 +77,8 @@ class Table(object):
                     {location}
                     {other}""".format(external=external, database=self.database, table_name="`" + self.name + "`",
                                       columns=self._column_to_sql(engine),
-                                      engine=engine.engine_sql(), order_by=engine.order_by_sql(self.order_cols),
+                                      engine=engine.engine_sql(self.format),
+                                      order_by=engine.order_by_sql(self.order_cols),
                                       shard_by=engine.shard_by_sql(self.shard_cols),
                                       partition_by=engine.partition_by_sql(self.partition_cols),
                                       location=engine.location_sql(self.external_path),
@@ -111,3 +113,7 @@ class Table(object):
             return " /*+ repartition({}) */ ".format(self.repartition)
 
         return ""
+
+    def add_column(self, column: Column):
+        self.columns.append(column)
+        self.columnMap[column.name] = column

@@ -3,8 +3,8 @@
 
 # 一些工具
 * [查看clickhouse执行UI](#查看clickhouse执行ui)
-
-
+* [生成Mergetree Bucket数据（Gluten读取）](#生成mergetreebucket数据)
+* [通过csv造数](#通过csv造数)
 
 ## 查看clickhouse执行UI
 clickhouse查询时需要带着`SETTINGS log_processors_profiles = 1`
@@ -41,4 +41,13 @@ arg1支持2种方式传递
    ```
    将导出的csv保存为test.csv,传入绝对路径到脚本中，如`./profiles.sh clickhouse /tmp/test.csv`
 
-    
+
+## 生成MergetreeBucket数据
+通过工具将Parquet生成为bucket mergetree数据，提供给[gluten](https://github.com/oap-project/gluten)读取
+
+
+
+
+## 通过csv造数
+通过csv造数据，横轴是列，纵轴是值可选范围
+

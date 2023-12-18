@@ -1,4 +1,5 @@
 import argparse
+import os.path
 
 from components.datamock.mockc_core import read_sample_csv, write_mock
 
@@ -16,6 +17,9 @@ parser.add_argument('--mock-rows', type=int,
 parser.add_argument('--max-rows-per-file', type=int,
                     help='', required=False,
                     default=10000000)
+parser.add_argument('--ignore-header', type=str,
+                    help='', required=False,
+                    default="true")
 
 if __name__ == '__main__':
     args = vars(parser.parse_args())
@@ -23,9 +27,13 @@ if __name__ == '__main__':
     output_dirs: str = args["output_dirs"]
     mock_rows: int = int(args["mock_rows"])
     max_rows_per_file: int = int(args["max_rows_per_file"])
+    ignore_header: bool = args["ignore_header"].lower() == "true"
 
     if not sample_file.endswith(".csv"):
         assert "当前只支持csv作为采样文件，横轴代表列明，纵轴代表采样范围"
 
+    if not os.path.exists(output_dirs):
+        os.makedirs(output_dirs)
+
     columns = read_sample_csv(sample_file)
-    write_mock(output_dirs, columns, mock_rows, max_rows_per_file)
+    write_mock(output_dirs, columns, mock_rows, max_rows_per_file, ignore_header)

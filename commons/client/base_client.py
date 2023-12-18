@@ -10,9 +10,10 @@ class BaseClient(object):
 
     def create_table(self, table: Table):
         for stmt in table.to_sql(self):
+            print(stmt)
             self.execute(stmt)
 
-    def engine_sql(self):
+    def engine_sql(self, fmt: str):
         return ""
 
     # @abstractmethod
