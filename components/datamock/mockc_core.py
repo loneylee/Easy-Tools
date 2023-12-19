@@ -21,8 +21,8 @@ class Rule(object):
             self.type = r[1]
         elif r[0] == "distinct":
             d = int(r[1])
-            if d > 1000:
-                d = 1000
+            if d > 100000:
+                d = 100000
             self.distinct = d
         elif r[0] == "len":
             self.len = int(r[1])
