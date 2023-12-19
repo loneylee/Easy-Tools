@@ -9,11 +9,11 @@ TABLES = ["sv_pf_thr_pty_ar_dd", "bi_ifar_org", "sv_10dmp_s_tag_dtal_idv_hqcktr"
 
 class EXT1(DataSetBase):
     def __init__(self, database_: str, nullable_: bool = False, use_decimal_: bool = False, use_bucket_: bool = True,
-                 external_path_: str = "", use_orders_: bool = False):
+                 external_path_: str = "", use_orders_: bool = False, use_partition_: bool = False):
+        super().__init__(use_bucket_, use_partition_)
         self.database = database_
         self.nullable = nullable_
         self.use_decimal = use_decimal_  # TODO
-        self.use_bucket = use_bucket_
         self.use_orders = use_orders_
         self.tables = {}
         self.external_path = external_path_
@@ -117,15 +117,18 @@ class EXT1(DataSetBase):
         table.add_column(Column("mth_act_days_tot", ColumnType(ColumnTypeEnum.INT), self.nullable))
 
         if self.use_orders:
-            table.order_cols = ["dte"]
+            table.order_cols = ["dte", "ogu_cd"]
 
         if self.use_bucket:
-            table.order_cols = ["dte"]
+            table.order_cols = ["ogu_cd"]
             table.shard_cols = Shard(
-                ["dte"],
+                ["ogu_cd"],
                 config.shards_repartition.get(name)[0],
                 table.order_cols
             )
+
+        if self.use_partition:
+            table.partition_cols = ["dte"]
 
         return table
 
@@ -337,5 +340,8 @@ class EXT1(DataSetBase):
                 config.shards_repartition.get(name)[0],
                 table.order_cols
             )
+
+        if self.use_partition:
+            table.partition_cols = ["dte"]
 
         return table

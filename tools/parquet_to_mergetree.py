@@ -17,6 +17,8 @@ arrow_type_map = {
     "date32[day]": ColumnTypeEnum.DATE
 }
 
+NO_PARTITION_X = "NO_PARTITION_X"
+
 spark_client = SparkClient()
 
 
@@ -96,7 +98,7 @@ def load_bucket_data(table: Table, dataset: DataSetBase, mergetree_path: str):
     dataset_table: Table = dataset.get_tables()[table.name]
     spark_client.create_table(dataset_table)
     spark_client.execute(
-        "insert into {dest_table_full_name} select {repartition} {column_names} from {table_fill_name}".format(
+        "insert into {dest_table_full_name} ({column_names}) select {repartition} {column_names} from {table_fill_name}".format(
             dest_table_full_name=dataset_table.full_name(), repartition=dataset_table.select_repartition(),
             column_names=dataset_table.sql_select_all_column(),
             table_fill_name=table.full_name()))
@@ -105,18 +107,35 @@ def load_bucket_data(table: Table, dataset: DataSetBase, mergetree_path: str):
         "select count(*) from {} limit 10".format(dataset_table.full_name())))
 
     bucket_files = {}
-    for file in os.listdir(dataset_table.external_path):
-        if file.endswith("parquet"):
-            bucket_num = file.split(".")[0].split("_")[-1]
-            bucket_files.setdefault(bucket_num, [])
-            bucket_files[bucket_num].append(dataset_table.external_path + os.sep + file)
+    if len(dataset_table.shard_cols.columns) != 0:
+        for file in os.listdir(dataset_table.external_path):
+            if file.endswith("parquet"):
+                bucket_num = file.split(".")[0].split("_")[-1]
+                bucket_files.setdefault(bucket_num, [])
+                bucket_files[bucket_num].append(dataset_table.external_path + os.sep + file)
+    elif len(dataset_table.partition_cols):
+        for partition in os.listdir(dataset_table.external_path):
+            partition_dir = dataset_table.external_path + os.sep + partition
+            if partition.__contains__("=") and os.path.isdir(partition_dir):
+                for file in os.listdir(partition_dir):
+                    if file.endswith("parquet"):
+                        bucket_files.setdefault(partition, [])
+                        bucket_files[partition].append(partition_dir + os.sep + file)
+    else:
+        for file in os.listdir(dataset_table.external_path):
+            if file.endswith("parquet"):
+                bucket_files.setdefault(NO_PARTITION_X, [])
+                bucket_files[NO_PARTITION_X].append(dataset_table.external_path + os.sep + file)
 
     ch = CHClient(ClickhouseConfig)
+    table_name_index = 1
 
     for bucket_num in bucket_files.keys():
         tpch_mergetree_table = copy.copy(dataset_table)
-        tpch_mergetree_table.name = bucket_num
+        tpch_mergetree_table.name = str(table_name_index)
+        table_name_index = table_name_index + 1
         tpch_mergetree_table.database = dataset_table.name
+        tpch_mergetree_table.partition_cols = []
 
         os.system("""
              clickhouse-local --multiquery --query "{query}" \
@@ -130,10 +149,28 @@ def load_bucket_data(table: Table, dataset: DataSetBase, mergetree_path: str):
 
         index = 0
         for file in bucket_files[bucket_num]:
-            bucket_sql = """
-                 insert into TABLE {database}.{table_name} SELECT * FROM file('{file}', 'Parquet');
-                 """.format(database=tpch_mergetree_table.database, table_name="`" + tpch_mergetree_table.name + "`",
-                            file=file)
+            if len(dataset_table.shard_cols.columns) != 0:
+                bucket_sql = """
+                                 insert into TABLE {database}.{table_name} SELECT * FROM file('{file}', 'Parquet');
+                                 """.format(database=tpch_mergetree_table.database,
+                                            table_name="`" + tpch_mergetree_table.name + "`",
+                                            file=file)
+            elif len(dataset_table.partition_cols):
+                p_and_v = bucket_num.split("=", 2)
+                bucket_sql = """
+                    insert into TABLE {database}.{table_name} ({columns_to}) SELECT {columns_from} FROM file('{file}', 'Parquet');
+                                                 """.format(database=tpch_mergetree_table.database,
+                                                            table_name="`" + tpch_mergetree_table.name + "`",
+                                                            columns_to=dataset_table.sql_select_all_column(),
+                                                            columns_from=dataset_table.sql_select_all_column().replace(
+                                                                p_and_v[0], "'" + p_and_v[1] + "'"),
+                                                            file=file)
+            else:
+                bucket_sql = """
+                                         insert into TABLE {database}.{table_name} SELECT * FROM file('{file}', 'Parquet');
+                                         """.format(database=tpch_mergetree_table.database,
+                                                    table_name="`" + tpch_mergetree_table.name + "`",
+                                                    file=file)
 
             os.system("""
             clickhouse-local --multiquery --query "{query}" \
@@ -144,9 +181,12 @@ def load_bucket_data(table: Table, dataset: DataSetBase, mergetree_path: str):
             """.format(query=bucket_sql.replace("\n", " ").replace("`", "\\`"),
                        bucket_path=mergetree_bucket_path))
 
-            bucket_rel_mergetree_path = tpch_mergetree_table.database + os.sep + tpch_mergetree_table.name
-            ch_part_path = mergetree_bucket_path + os.sep + "data" + os.sep + bucket_rel_mergetree_path
-            mregetree_part_path = mergetree_path + os.sep + "mergetree" + os.sep + "defalut" + os.sep + bucket_rel_mergetree_path
+            ch_part_path = mergetree_bucket_path + os.sep + "data" + os.sep + tpch_mergetree_table.database + os.sep + tpch_mergetree_table.name
+
+            if bucket_num == NO_PARTITION_X:
+                mregetree_part_path = mergetree_path + os.sep + "mergetree" + os.sep + "defalut" + os.sep + tpch_mergetree_table.database
+            else:
+                mregetree_part_path = mergetree_path + os.sep + "mergetree" + os.sep + "defalut" + os.sep + tpch_mergetree_table.database + os.sep + bucket_num
 
             if not os.path.exists(mregetree_part_path):
                 os.makedirs(mregetree_part_path)

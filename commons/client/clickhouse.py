@@ -1,8 +1,8 @@
 from clickhouse_driver import dbapi
 
 from commons.client.base_client import BaseClient
+from commons.utils.SQLHelper import ColumnType, ColumnTypeEnum
 from config import ClickhouseConfig
-from commons.utils.SQLHelper import ColumnType, Shard, ColumnTypeEnum
 
 column_type_to_ch_type = {
     ColumnTypeEnum.BIGINT: "Int64",
@@ -64,3 +64,9 @@ class CHClient(BaseClient):
 
     def support_external(self) -> bool:
         return False
+
+    def partition_by_sql(self, shard_by_column):
+        if len(shard_by_column) == 0:
+            return ""
+
+        return " partition by ({}})".format(",".join(shard_by_column))

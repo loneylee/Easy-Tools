@@ -48,3 +48,9 @@ class SparkClient(BaseClient):
         return """
         CLUSTERED by ({}) SORTED by  ({}) INTO {} BUCKETS
         """.format(",".join(shard.columns), ",".join(shard.order_by), shard.shard_num)
+
+    def partition_by_sql(self, shard_by_column):
+        if len(shard_by_column) == 0:
+            return ""
+
+        return " PARTITIONED BY ({})".format(",".join(shard_by_column))

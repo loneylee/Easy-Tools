@@ -10,10 +10,10 @@ TPCH_TABLES = ["customer", "lineitem", "nation", "orders", "part", "partsupp", "
 class TPCH(DataSetBase):
     def __init__(self, database_: str, nullable_: bool = False, use_decimal_: bool = False, use_bucket_: bool = True,
                  external_path_: str = "", use_orders_: bool = False):
+        super().__init__(use_bucket_)
         self.database = database_
         self.nullable = nullable_
         self.use_decimal = use_decimal_  # TODO
-        self.use_bucket = use_bucket_
         self.use_orders = use_orders_
         self.tables = {}
         self.external_path = external_path_
