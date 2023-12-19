@@ -141,3 +141,4 @@ def write_mock(dirs: str, columns, total_rows: int, max_rows_per_file: int, igno
             write_mock_inner(dirs, index, columns, total_rows, ignore_header)
 
         total_rows = total_rows - max_rows_per_file
+        index = index + 1
