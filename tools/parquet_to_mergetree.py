@@ -184,9 +184,9 @@ def load_bucket_data(table: Table, dataset: DataSetBase, mergetree_path: str):
             ch_part_path = mergetree_bucket_path + os.sep + "data" + os.sep + tpch_mergetree_table.database + os.sep + tpch_mergetree_table.name
 
             if bucket_num == NO_PARTITION_X:
-                mregetree_part_path = mergetree_path + os.sep + "mergetree" + os.sep + "defalut" + os.sep + tpch_mergetree_table.database
+                mregetree_part_path = mergetree_path + os.sep + "mergetree" + os.sep + "default" + os.sep + tpch_mergetree_table.database
             else:
-                mregetree_part_path = mergetree_path + os.sep + "mergetree" + os.sep + "defalut" + os.sep + tpch_mergetree_table.database + os.sep + bucket_num
+                mregetree_part_path = mergetree_path + os.sep + "mergetree" + os.sep + "default" + os.sep + tpch_mergetree_table.database + os.sep + bucket_num
 
             if not os.path.exists(mregetree_part_path):
                 os.makedirs(mregetree_part_path)
