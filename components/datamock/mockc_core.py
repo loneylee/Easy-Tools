@@ -118,7 +118,7 @@ def read_sample_csv(csv_file: str):
 
 
 def write_mock_inner(dirs: str, index: int, columns, total_rows: int, ignore_header):
-    with open(dirs + os.sep + str(uuid.UUID) + "_" + str(index) + ".csv", "w", newline='') as f:
+    with open(dirs + os.sep + str(uuid.uuid1()) + "_" + str(index) + ".csv", "w", newline='') as f:
         writer = csv.writer(f, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
         for cnt in range(0, total_rows):
             row = []
