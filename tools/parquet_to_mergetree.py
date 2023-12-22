@@ -7,10 +7,12 @@ import pyarrow.parquet as parquet
 from commons.client.clickhouse import CHClient
 from commons.client.spark import SparkClient
 from commons.utils.SQLHelper import Table, Column, ColumnTypeEnum, ColumnType
-from config import ClickhouseConfig, mergetree_dest_dataset
+from config import ClickhouseConfig
 from resources.datasets.dataset import DataSetBase
+from resources.datasets.tpcds import TPCDS
 
 arrow_type_map = {
+    "int32": ColumnTypeEnum.INT,
     "int64": ColumnTypeEnum.BIGINT,
     "double": ColumnTypeEnum.DOUBLE,
     "string": ColumnTypeEnum.STRING,
@@ -97,11 +99,13 @@ def load_bucket_data(table: Table, dataset: DataSetBase, mergetree_path: str):
 
     dataset_table: Table = dataset.get_tables()[table.name]
     spark_client.create_table(dataset_table)
-    spark_client.execute(
-        "insert into {dest_table_full_name} ({column_names}) select {repartition} {column_names} from {table_fill_name}".format(
-            dest_table_full_name=dataset_table.full_name(), repartition=dataset_table.select_repartition(),
+    insert_sql = "insert into {dest_table_full_name} ({column_names}) select {repartition} {column_names} from {table_fill_name}".format(
+            dest_table_full_name=dataset_table.full_name(),
+            repartition=dataset_table.select_repartition(),
             column_names=dataset_table.sql_select_all_column(),
-            table_fill_name=table.full_name()))
+            table_fill_name=table.full_name())
+    print(insert_sql)
+    spark_client.execute(insert_sql)
     print("Load bucket parquet table {} success.".format(table.full_name()))
     print(spark_client.execute_and_fetchall(
         "select count(*) from {} limit 10".format(dataset_table.full_name())))
@@ -214,13 +218,11 @@ def load_bucket_data(table: Table, dataset: DataSetBase, mergetree_path: str):
 
 def parser(ori_path: str, bucket_path: str, ori_format: str):
     mergetree_bucket_path: str = bucket_path + "-mergetree"
-    mergetree_dest_dataset.set_external_path(bucket_path)
-
+    mergetree_dest_dataset: DataSetBase = TPCDS("bucket_tpcds", use_bucket_=True, external_path_=mergetree_bucket_path)
     if not os.path.exists(bucket_path):
         os.makedirs(bucket_path)
 
-    for table_name in os.listdir(ori_path):
-        table_path = ori_path + os.sep + table_name
-        if os.path.isdir(table_path):
-            table = parse_table(table_path, table_name, ori_format, mergetree_dest_dataset)
-            load_bucket_data(table, mergetree_dest_dataset, mergetree_bucket_path)
+    origin_tables: DataSetBase = TPCDS("default_tpcds", use_orders_=False, use_bucket_=False, external_path_=ori_path)
+    for table in origin_tables.get_tables().values():
+        spark_client.create_table(table)
+        load_bucket_data(table, mergetree_dest_dataset, mergetree_bucket_path)

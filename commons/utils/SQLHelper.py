@@ -1,5 +1,6 @@
+import os
 from enum import Enum
-
+import config
 
 class ColumnTypeEnum(Enum):
     BIGINT = 1
@@ -55,6 +56,20 @@ class Table(object):
         self.partition_cols = []
         self.external_path = ""
         self.repartition = 0
+
+    def post_init(self, database, external_path, is_ordered, order_cols, is_bucket, shard_cols):
+        self.database = database
+        self.repartition = config.shards_repartition.get(self.name)[1]
+        self.external_path = external_path + os.sep + self.name
+        if is_ordered:
+            self.order_cols = order_cols
+        if is_bucket:
+            self.order_cols = order_cols
+            self.shard_cols = Shard(
+                shard_cols,
+                config.shards_repartition.get(self.name)[0],
+                order_cols
+            )
 
     def to_sql(self, engine) -> list:
         sql = []

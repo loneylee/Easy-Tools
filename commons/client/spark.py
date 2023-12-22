@@ -2,7 +2,7 @@ from pyspark import SparkConf
 from pyspark.sql import SparkSession
 
 from commons.client.base_client import BaseClient
-from commons.utils.SQLHelper import ColumnType, Shard
+from commons.utils.SQLHelper import ColumnType, Shard, ColumnTypeEnum
 from config import spark_conf
 
 conf = SparkConf()
@@ -32,8 +32,21 @@ class SparkClient(BaseClient):
             fmt = "PARQUET"
         return "USING {}".format(fmt.upper())
 
+    def trans_column_nullable(self, nullable):
+        if nullable:
+            return ""
+        else:
+            return " NOT NULL "
+
     def trans_column_type(self, origin_type: ColumnType):
-        return origin_type.type.name
+        if len(origin_type.args) == 0:
+            return origin_type.type.name
+        if origin_type.type == ColumnTypeEnum.VARCHAR:
+            return "Varchar({})".format(origin_type.args[0])
+        if origin_type.type == ColumnTypeEnum.CHAR:
+            return "Char({})".format(origin_type.args[0])
+        if origin_type.type == ColumnTypeEnum.DECIMAL:
+            return "Decimal({},{})".format(origin_type.args[0], origin_type.args[1])
 
     def location_sql(self, location_uri):
         if location_uri == "":

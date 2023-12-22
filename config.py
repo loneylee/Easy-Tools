@@ -1,5 +1,4 @@
 from pyspark import SparkConf
-from resources.datasets.tpch import TPCH, DataSetBase
 
 clickhouse_info = {
     'host': "localhost",
@@ -17,22 +16,36 @@ spark_conf.set("spark.io.compression.codec", "LZ4")
 spark_conf.set("spark.memory.offHeap.enabled", "true")
 spark_conf.set("spark.memory.offHeap.size", "20G")
 # spark_conf.set("spark.local.dir", "/shuffle/lishuai/tmp");
-spark_conf.set("parquet.block.size", "1073741824")
+spark_conf.set("spark.parquet.block.size", "1073741824")
 
-output_dir = "/home/admin123/Downloads"
+output_dir = "/home/lwz9103/Downloads"
 
 shards_repartition = {
-    "customer": (15, 3),
-    "lineitem": (90, 1),
-    "nation": (1, 1),
-    "orders": (90, 1),
-    "part": (15, 3),
-    "partsupp": (15, 3),
-    "region": (1, 1),
-    "supplier": (1, 1)
+    "store_sales": (90, 3),
+    "store_returns": (90, 1),
+    "catalog_sales": (90, 3),
+    "catalog_returns": (90, 1),
+    "web_sales": (90, 3),
+    "web_returns": (90, 1),
+    "inventory": (90, 3),
+    "store": (1, 1),
+    "call_center": (1, 1),
+    "catalog_page": (15, 1),
+    "web_site": (1, 1),
+    "web_page": (1, 1),
+    "warehouse": (1, 1),
+    "customer": (15, 1),
+    "customer_address": (15, 1),
+    "customer_demographics": (15, 1),
+    "date_dim": (15, 1),
+    "household_demographics": (1, 1),
+    "item": (15, 1),
+    "income_band": (1, 1),
+    "promotion": (1, 1),
+    "reason": (1, 1),
+    "ship_mode": (1, 1),
+    "time_dim": (15, 1)
 }
-
-mergetree_dest_dataset: DataSetBase = TPCH("bucket_tpch", use_bucket_=True)
 
 
 class _ClickhouseConfig(object):
