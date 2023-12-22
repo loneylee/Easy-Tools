@@ -130,6 +130,8 @@ def write_mock_inner(dirs: str, index: int, columns, total_rows: int, ignore_hea
                     row.append(column.rule.get_mock())
 
             writer.writerow(row)
+            if total_rows % 100 == 0:
+                f.flush()
 
 
 def write_mock(dirs: str, columns, total_rows: int, max_rows_per_file: int, ignore_header: bool):
