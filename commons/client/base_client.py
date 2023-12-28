@@ -32,7 +32,7 @@ class BaseClient(object):
     def other_sql(self, table):
         return ""
 
-    def trans_column_type(self, origin_type: ColumnType):
+    def trans_column_type(self, origin_type: ColumnType, nullable=True):
         return origin_type.type.name
 
     def trans_column_nullable(self, nullable):

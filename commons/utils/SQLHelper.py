@@ -38,7 +38,7 @@ class Column(object):
         self.default = d
 
     def to_sql(self, engine):
-        return "{} {} {} {}".format(self.name, engine.trans_column_type(self.type),
+        return "{} {} {} {}".format(self.name, engine.trans_column_type(self.type, self.nullable),
                                     engine.trans_column_nullable(self.nullable),
                                     engine.trans_column_default_value(self.default))
 

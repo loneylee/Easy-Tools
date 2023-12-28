@@ -4,10 +4,9 @@ from commons.utils.SQLHelper import Table, Column, ColumnType, ColumnTypeEnum
 from resources.datasets.dataset import DataSetBase
 
 
-# TPCDS_TABLES = ["store_sales", "store_returns", "catalog_sales", "catalog_returns", "web_sales", "web_returns", "inventory", "store", "call_center",
-#          "catalog_page", "web_site", "web_page", "warehouse", "customer", "customer_address", "customer_demographics", "date_dim", "household_demographics",
-#          "item", "income_band", "promotion", "reason", "ship_mode", "time_dim"]
-TPCDS_TABLES = ["customer"]
+TPCDS_TABLES = ["store_sales", "store_returns", "catalog_sales", "catalog_returns", "web_sales", "web_returns", "inventory", "store", "call_center",
+         "catalog_page", "web_site", "web_page", "warehouse", "customer", "customer_address", "customer_demographics", "date_dim", "household_demographics",
+         "item", "income_band", "promotion", "reason", "ship_mode", "time_dim"]
 
 class TPCDS(DataSetBase):
     def __init__(self, database_: str, nullable_: bool = True, use_decimal_: bool = False, use_bucket_: bool = True,

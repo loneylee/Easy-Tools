@@ -33,22 +33,26 @@ class CHClient(BaseClient):
         cursor.close()
         return result
 
+    def other_sql(self, table):
+        if table.columns[0].nullable:
+            return " SETTINGS allow_nullable_key = 1 "
+        return ""
+
     def engine_sql(self, fmt: str):
         return " ENGINE=MergeTree() "
 
-    def trans_column_type(self, origin_type: ColumnType):
-        t = column_type_to_ch_type.get(origin_type.type)
-        if t is not None:
-            return t
+    def trans_column_type(self, origin_type: ColumnType, nullable=True):
+        new_type = column_type_to_ch_type.get(origin_type.type)
 
         if origin_type.type == ColumnTypeEnum.VARCHAR or origin_type.type == ColumnTypeEnum.CHAR:
-            return column_type_to_ch_type.get(ColumnTypeEnum.STRING)
+            new_type = column_type_to_ch_type.get(ColumnTypeEnum.STRING)
 
         if origin_type.type == ColumnTypeEnum.DECIMAL:
-            return "Decimal({},{})".format(origin_type.args[0], origin_type.args[1])
+            new_type = "Decimal({},{})".format(origin_type.args[0], origin_type.args[1])
 
-        assert False
-        return origin_type.type.name
+        if nullable:
+            return "Nullable({})".format(new_type)
+        return new_type
 
     def trans_column_nullable(self, nullable):
         return ""

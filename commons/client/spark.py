@@ -38,7 +38,7 @@ class SparkClient(BaseClient):
         else:
             return " NOT NULL "
 
-    def trans_column_type(self, origin_type: ColumnType):
+    def trans_column_type(self, origin_type: ColumnType, nullable=True):
         if len(origin_type.args) == 0:
             return origin_type.type.name
         if origin_type.type == ColumnTypeEnum.VARCHAR:
